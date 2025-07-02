@@ -1,0 +1,21 @@
+----- Viaje finalizado -----
+Fecha y hora: 2025-07-02 12:26:35
+Tiempo detenido: 11.27 segundos
+Tiempo en marcha : 265.68 segundos
+Total a pagar   : €13.51
+------------------------------
+
+----- Viaje finalizado -----
+Fecha y hora: 2025-07-02 12:33:17
+Tiempo detenido: 5.45 segundos
+Tiempo en marcha : 6.52 segundos
+Total a pagar   : €0.44
+------------------------------
+
+----- Viaje finalizado -----
+Fecha y hora: 2025-07-02 12:33:59
+Tiempo detenido: 3.83 segundos
+Tiempo en marcha : 7.25 segundos
+Total a pagar   : €0.44
+------------------------------
+
