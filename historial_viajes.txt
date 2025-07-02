@@ -1,0 +1,56 @@
+----- Viaje finalizado -----
+Fecha y hora: 2025-07-02 00:51:07
+Tiempo detenido: 1.1 segundos
+Tiempo en movimiento: 6.1 segundos
+Total a pagar: €0.33
+------------------------------
+
+----- Viaje finalizado -----
+Fecha y hora: 2025-07-02 01:04:19
+Tiempo detenido: 9.0 segundos
+Tiempo en movimiento: 13.0 segundos
+Total a pagar: €0.83
+------------------------------
+
+----- Viaje finalizado -----
+Fecha y hora: 2025-07-02 01:09:47
+Tiempo detenido: 5.2 segundos
+Tiempo en movimiento: 4.4 segundos
+Total a pagar: €0.32
+------------------------------
+
+----- Viaje finalizado -----
+Fecha y hora: 2025-07-02 01:24:42
+Tiempo detenido: 3.1 segundos
+Tiempo en movimiento: 4.3 segundos
+Total a pagar: €0.28
+------------------------------
+
+----- Viaje finalizado -----
+Fecha y hora: 2025-07-02 01:27:39
+Tiempo detenido: 31.9 segundos
+Tiempo en movimiento: 1.4 segundos
+Total a pagar: €0.71
+------------------------------
+
+----- Viaje finalizado -----
+Fecha y hora: 2025-07-02 01:32:18
+Tiempo detenido: 8.11 segundos
+Tiempo en movimiento: 4.35 segundos
+Total a pagar: €0.38
+------------------------------
+
+----- Viaje finalizado -----
+Fecha y hora: 2025-07-02 01:47:03
+Tiempo detenido: 10.19 segundos
+Tiempo en marcha : 9.06 segundos
+Total a pagar   : €0.66
+------------------------------
+
+----- Viaje finalizado -----
+Fecha y hora: 2025-07-02 01:49:41
+Tiempo detenido: 5.01 segundos
+Tiempo en marcha : 3.84 segundos
+Total a pagar   : €0.29
+------------------------------
+
