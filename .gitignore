@@ -1,7 +1,8 @@
 __pycache__/
 .venv/
-.pytest_cache
-.DS_Store
+.venv-api/
+.pytest_cache/
+.DS_Store/
 
 # (por si existieran todavía versiones antiguas)
 usuarios.txt
