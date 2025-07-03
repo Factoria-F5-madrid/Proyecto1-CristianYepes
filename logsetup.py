@@ -1,28 +1,29 @@
 import logging
 from logging.handlers import RotatingFileHandler
-
+from db import Database, DBLogHandler
 
 def get_app_logger(path: str = "taximetro.log", *, console_debug: bool = False) -> logging.Logger:
-	"""
-	Devuelve el logger principal. Siempre escribe en taximetro.log;
-	solo muestra en consola si console_debug=True.
-	"""
 	logger = logging.getLogger("taximeter")
-	if logger.handlers:					  # ya configurado
+	if logger.handlers:
 		return logger
 
 	logger.setLevel(logging.INFO)
+	logger.propagate = False
 
 	fmt = logging.Formatter(
-	    "%(asctime)s  %(levelname)-8s  %(name)s | %(message)s",
-	    datefmt="%Y-%m-%d %H:%M:%S"
+		"%(asctime)s  %(levelname)-8s  %(name)s | %(message)s",
+		datefmt="%Y-%m-%d %H:%M:%S"
 	)
 
 	file_handler = RotatingFileHandler(path, maxBytes=100_000, backupCount=3)
 	file_handler.setFormatter(fmt)
 	logger.addHandler(file_handler)
 
-	logger.console_handler = None		  # se usará para el modo desarrollador
+	db = Database()
+	db_handler = DBLogHandler(db)
+	logger.addHandler(db_handler)
+
+	logger.console_handler = None
 
 	if console_debug:
 		console = logging.StreamHandler()

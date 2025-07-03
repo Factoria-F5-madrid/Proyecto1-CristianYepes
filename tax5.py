@@ -3,33 +3,35 @@ import logging
 import threading
 import time
 import pytest
-import os
 
+from db import Database
 from auth import AuthSystem
+from trip_repo import TripRepository
 from logsetup import get_app_logger
 
-COLOR_CYAN = "\033[96m"
-COLOR_GREEN = "\033[92m"
+
+COLOR_CYAN   = "\033[96m"
+COLOR_GREEN  = "\033[92m"
 COLOR_YELLOW = "\033[93m"
 COLOR_PURPLE = "\033[95m"
-COLOR_RED = "\033[91m"
-COLOR_RESET = "\033[0m"
+COLOR_RED    = "\033[91m"
+COLOR_RESET  = "\033[0m"
 
 
 class Trip:
 	def __init__(self, logger: logging.Logger, stop_rate: float, move_rate: float):
-		self.log = logger
-		self.stop_rate = stop_rate
-		self.move_rate = move_rate
-		self.total = 0.0
-		self.state = "stop"
+		self.log        = logger
+		self.stop_rate  = stop_rate
+		self.move_rate  = move_rate
+		self.total      = 0.0
+		self.state      = "stop"
 		self.start_time = time.perf_counter()
-		self.stop_time = 0.0
-		self.move_time = 0.0
-		self.lock = threading.Lock()
+		self.stop_time  = 0.0
+		self.move_time  = 0.0
+		self.lock       = threading.Lock()
 
 	def _accumulate_elapsed(self):
-		now = time.perf_counter()
+		now     = time.perf_counter()
 		elapsed = now - self.start_time
 		if self.state == "stop":
 			self.stop_time += elapsed
@@ -48,42 +50,11 @@ class Trip:
 			self._accumulate_elapsed()
 			self.total = self.stop_time * self.stop_rate + self.move_time * self.move_rate
 			self.log.info(
-				f"Viaje cerrado | stop={self.stop_time:.2f}s move={self.move_time:.2f}s total=€{self.total:.2f}"
+				f"Viaje cerrado | stop={self.stop_time:.2f}s "
+				f"move={self.move_time:.2f}s total=€{self.total:.2f}"
 			)
 			self.log.info("------------------------------")
 			return self.stop_time, self.move_time, self.total
-
-class FileTripHistory:
-	def __init__(self, logger: logging.Logger, username, filename="historial_viajes.txt"):
-		self.filename = filename
-		self.username = username
-		self.log = logger
-		self.next_id = self._get_next_id()
-
-	def _get_next_id(self):
-		if not os.path.exists(self.filename):
-			return 1
-		with open(self.filename, "r", encoding="utf-8") as f:
-			ids = [int(line.strip().split(":")[1])
-				   for line in f if line.startswith("ID:")]
-			return max(ids, default=0) + 1
-
-	def save(self, stop_time, move_time, total):
-		with open(self.filename, "a", encoding="utf-8") as f:
-			print("----- Viaje finalizado -----", file=f)
-			print(f"ID: {self.next_id}", file=f)
-			print(f"Usuario: {self.username}", file=f)
-			print(f"Fecha y hora: {datetime.datetime.now():%Y-%m-%d %H:%M:%S}", file=f)
-			print(f"Tiempo detenido: {stop_time:.2f} segundos", file=f)
-			print(f"Tiempo en marcha : {move_time:.2f} segundos", file=f)
-			print(f"Total a pagar   : €{total:.2f}", file=f)
-			print("------------------------------\n", file=f)
-		self.log.debug(f"Trayecto guardado en historial con ID {self.next_id}")
-		self.next_id += 1
-
-	def clear(self):
-		open(self.filename, "w", encoding="utf-8").close()
-		self.log.debug("Historial de viajes vaciado")
 
 
 class ConsoleView:
@@ -130,23 +101,14 @@ class ConsoleView:
 		print(msg)
 
 
-class Taximeter:
-	def __init__(self, view, history, logger):
-		self.view = view
-		self.history = history
-		self.log = logger
-		self.current_trip = None
-		self.dev_mode = bool(logger.console_handler)
-		self.stop_rate = 0.02
-		self.move_rate = 0.05
+class PriceManager:
+	def __init__(self, logger, view, stop_rate=0.02, move_rate=0.05):
+		self.log       = logger
+		self.view      = view
+		self.stop_rate = stop_rate
+		self.move_rate = move_rate
 
-	def start_new_trip(self):
-		self.current_trip = Trip(self.log, self.stop_rate, self.move_rate)
-		self.view.show_message(
-			f"\nViaje iniciado (stop={self.stop_rate:.2f}€/s, move={self.move_rate:.2f}€/s)."
-		)
-
-	def _valid_price(self, raw: str):
+	def _valid(self, raw: str):
 		if raw.count(".") != 1:
 			return None
 		ent, dec = raw.split(".")
@@ -155,11 +117,11 @@ class Taximeter:
 		val = float(raw)
 		return val if val > 0 else None
 
-	def change_prices(self):
+	def prompt_and_update(self):
 		raw_stop = self.view.ask_command("Nuevo precio STOP (€/s): ")
 		raw_move = self.view.ask_command("Nuevo precio MOVE (€/s): ")
-		new_stop = self._valid_price(raw_stop)
-		new_move = self._valid_price(raw_move)
+		new_stop = self._valid(raw_stop)
+		new_move = self._valid(raw_move)
 		if new_stop is None or new_move is None:
 			self.view.show_error(
 				"Formato inválido. Usa punto y uno o dos decimales, ej. 0.3 o 0.09"
@@ -171,10 +133,18 @@ class Taximeter:
 		)
 		self.log.info(f"Tarifas cambiadas (stop={new_stop}, move={new_move})")
 
-	def toggle_dev_mode(self):
+
+class DevConsoleToggle:
+	def __init__(self, logger, view):
+		self.log      = logger
+		self.view     = view
+		self.dev_mode = bool(getattr(logger, "console_handler", None))
+
+	def toggle(self):
 		if self.dev_mode:
 			if self.log.console_handler:
 				self.log.removeHandler(self.log.console_handler)
+				self.log.console_handler = None
 			self.dev_mode = False
 			self.view.show_message("Modo desarrollador DESACTIVADO")
 			self.log.info("Modo desarrollador OFF")
@@ -191,8 +161,31 @@ class Taximeter:
 			self.view.show_message("Modo desarrollador ACTIVADO")
 			self.log.info("Modo desarrollador ON")
 
+
+class Taximeter:
+	def __init__(self, view, history, logger, username):
+		self.view       = view
+		self.history    = history
+		self.log        = logger
+		self.username   = username
+		self.price_mgr  = PriceManager(logger, view)
+		self.dev_ctl    = DevConsoleToggle(logger, view)
+		self.current_trip = None
+
+	def start_new_trip(self):
+		self.current_trip = Trip(
+			self.log,
+			self.price_mgr.stop_rate,
+			self.price_mgr.move_rate
+		)
+		self.view.show_message(
+			f"\nViaje iniciado (stop={self.price_mgr.stop_rate:.2f}€/s, "
+			f"move={self.price_mgr.move_rate:.2f}€/s)."
+		)
+
 	def clear_logs(self):
-		open("taximetro.log", "w", encoding="utf-8").close()
+		with self.history.db.conn:
+			self.history.db.conn.execute("DELETE FROM logs")
 		self.history.clear()
 		self.view.show_message("Historial y log vaciados.")
 		self.log.info("Historial y log vaciados por el operador")
@@ -233,10 +226,10 @@ class Taximeter:
 					self.view.show_state(self.current_trip.state)
 
 			elif cmd == "p":
-				self.change_prices()
+				self.price_mgr.prompt_and_update()
 
 			elif cmd == "d":
-				self.toggle_dev_mode()
+				self.dev_ctl.toggle()
 
 			elif cmd == "finish":
 				if not self.current_trip:
@@ -276,11 +269,12 @@ class Taximeter:
 
 
 if __name__ == "__main__":
-	auth = AuthSystem()
-	user = auth.login_menu()
+	db      = Database()
+	auth    = AuthSystem(db)
+	user    = auth.login_menu()
 	print(f"\n🔐 Sesión iniciada como: {user}")
 
-	logger = get_app_logger()
-	view = ConsoleView()
-	history = FileTripHistory(logger, user)
-	Taximeter(view, history, logger).start()
+	logger  = get_app_logger()
+	view    = ConsoleView()
+	repo    = TripRepository(db, user)
+	Taximeter(view, repo, logger, user).start()
