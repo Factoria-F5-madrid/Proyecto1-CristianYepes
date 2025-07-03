@@ -1,8 +1,7 @@
 import logging
-from logging.handlers import RotatingFileHandler
 from db import Database, DBLogHandler
 
-def get_app_logger(path: str = "taximetro.log", *, console_debug: bool = False) -> logging.Logger:
+def get_app_logger(*, console_debug: bool = False) -> logging.Logger:
 	logger = logging.getLogger("taximeter")
 	if logger.handlers:
 		return logger
@@ -10,23 +9,18 @@ def get_app_logger(path: str = "taximetro.log", *, console_debug: bool = False) 
 	logger.setLevel(logging.INFO)
 	logger.propagate = False
 
-	fmt = logging.Formatter(
-		"%(asctime)s  %(levelname)-8s  %(name)s | %(message)s",
-		datefmt="%Y-%m-%d %H:%M:%S"
-	)
-
-	file_handler = RotatingFileHandler(path, maxBytes=100_000, backupCount=3)
-	file_handler.setFormatter(fmt)
-	logger.addHandler(file_handler)
-
+	# ⬇️  Handler que escribe en la tabla logs de SQLite
 	db = Database()
-	db_handler = DBLogHandler(db)
-	logger.addHandler(db_handler)
+	logger.addHandler(DBLogHandler(db))
 
 	logger.console_handler = None
 
 	if console_debug:
 		console = logging.StreamHandler()
+		fmt = logging.Formatter(
+			"%(asctime)s  %(levelname)-8s  %(name)s | %(message)s",
+			datefmt="%Y-%m-%d %H:%M:%S",
+		)
 		console.setFormatter(fmt)
 		logger.addHandler(console)
 		logger.console_handler = console

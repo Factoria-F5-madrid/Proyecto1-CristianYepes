@@ -18,7 +18,8 @@ El objetivo es modernizar el sistema de cobro en taxis mediante un programa capa
 - [Cómo desplegar y ejecutar mi proyecto](#cómo-desplegar-y-ejecutar-mi-proyecto)
 - [Primera versión (Nivel esencial)](#primera-versión-nivel-esencial)
 - [Segunda versión (Nivel medio)](#segunda-versión-nivel-medio)
-- [Tercera versión (Nivel avanzado)](#tercera-versión-nivel-avanzado)
+- [Tercera versión (Nivel experto) – Migración a SQLite](#tercera-versión-nivel-experto---migración-completa-a-sqlite)
+- [Cuarta versión (Nivel experto) – Dockerización y web](#cuarta-versión-nivel-experto)
 
 
 
@@ -311,3 +312,64 @@ Así se mantiene un historial detallado por usuario, listo para exportar o migra
 ![NVA3](assets/nva3.png)
 
 ![NVA2](assets/nva2.png)
+
+
+## Cuarta versión (Nivel experto)
+
+- Implementación 1️⃣ 🔗 Migración completa a SQLite
+> Sustituimos TODOS los archivos de texto por una única base de datos **`taximetro.db`**.
+
+### 1. ¿Por qué migrar?
+| Problema con los TXT | Ventaja con SQLite |
+|----------------------|--------------------|
+| Difícil de consultar («grep» limitado). | Consultas SQL potentes (`SELECT`, `JOIN`, etc.). |
+| Riesgo de inconsistencias al escribir desde varios hilos. | Transacciones atómicas (`BEGIN … COMMIT`). |
+| No se puede relacionar usuarios ↔ viajes. | Integridad referencial (`FOREIGN KEY`). |
+| Archivos crecen sin control. | Una sola BD con tablas compactas, fácil de respaldar. |
+
+### 2. Estructura de la base de datos
+
+| Tabla | Columnas clave | Para qué sirve |
+|-------|---------------|----------------|
+| **`users`** | `id`, `username`, `password` | Autenticación de usuarios. *(Contraseñas en texto plano por ahora – se hashificarán en la siguiente iteración).* |
+| **`trips`** | `id`, `user_id`, `date`, `stop_time`, `move_time`, `total` | Historial de trayectos con relación 1-N (`user_id → users.id`). |
+| **`logs`** | `id`, `timestamp`, `level`, `message` | Traza completa del programa (equivalente a `taximetro.log`). |
+
+> Las tablas se crean automáticamente al primer arranque (`db.py → create_tables()`).
+
+### 3. Cambios de código principales
+
+| Elemento | Antes | Después |
+|----------|-------|---------|
+| **Usuarios** | `usuarios.txt` | `AuthSystem` → `users` |
+| **Historial** | `FileTripHistory` + `historial_viajes.txt` | `TripRepository` → `trips` |
+| **Logs** | `RotatingFileHandler` + `taximetro.log` | `DBLogHandler` → `logs` (archivo eliminado) |
+
+### 4. Ejemplos
+
+- 4.1 Abre el cliente de SQLite sobre tu base de datos:
+
+```
+sqlite3 taximetro.db
+```
+- 4.2 Últimos 5 viajes con su coste
+
+```
+SELECT t.id, u.username, t.date, t.total
+FROM trips t
+JOIN users u ON u.id = t.user_id
+ORDER BY t.id DESC
+LIMIT 5;
+```
+
+![bs1](assets/bs1.png)
+
+> ⚠️ **Advertencia de seguridad**
+> Las contraseñas se almacenan **en texto plano** en la base de datos.
+> Esto es adecuado únicamente para entornos de prueba o desarrollo local.
+> En producción debes **nunca** guardar contraseñas sin cifrar: utiliza algoritmos como **bcrypt** o **SHA-256** con salt para proteger los datos de usuario.
+
+
+
+
+
