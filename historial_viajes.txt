@@ -19,3 +19,19 @@ Tiempo en marcha : 7.25 segundos
 Total a pagar   : €0.44
 ------------------------------
 
+----- Viaje finalizado -----
+Fecha y hora: 2025-07-03 18:05:51
+Tiempo detenido: 94.47 segundos
+Tiempo en marcha : 0.00 segundos
+Total a pagar   : €1.89
+------------------------------
+
+----- Viaje finalizado -----
+ID: 1
+Usuario: Cristian
+Fecha y hora: 2025-07-03 20:36:04
+Tiempo detenido: 8.39 segundos
+Tiempo en marcha : 1.60 segundos
+Total a pagar   : €0.25
+------------------------------
+

@@ -11,13 +11,15 @@ El objetivo es modernizar el sistema de cobro en taxis mediante un programa capa
 - [¿Qué hace este proyecto?](#qué-hace-este-proyecto)
 - [Tecnologías](#tecnologías)
 - [Dashboard en Trello](#dashboard-en-trello)
-- [Configuración del proyecto](#configuración-del-proyecto)
+- [Configuración del proyecto (implementación propia)](#configuración-del-proyecto-implementación-propia)
 - [Crear el archivo taximetropy](#crear-el-archivo-taximetropy)
 - [Lógica del proyecto](#lógica-del-proyecto)
 - [Diagrama de flujo del programa](#diagrama-de-flujo-del-programa)
-- [Cómo desplegar y ejecutar el proyecto](#cómo-desplegar-y-ejecutar-el-proyecto)
+- [Cómo desplegar y ejecutar mi proyecto](#cómo-desplegar-y-ejecutar-mi-proyecto)
 - [Primera versión (Nivel esencial)](#primera-versión-nivel-esencial)
-- [Segunda versión (Nivel intermedio)](#segunda-versión-nivel-intermedio)
+- [Segunda versión (Nivel medio)](#segunda-versión-nivel-medio)
+- [Tercera versión (Nivel avanzado)](#tercera-versión-nivel-avanzado)
+
 
 
 ## ¿Qué hace este proyecto?
@@ -46,7 +48,7 @@ Ejemplo de tablero en Trello:
 
 ![Trello1](/assets/trello1.png)
 
-## Configuración del proyecto
+## Configuración del proyecto (implementación propia)
 
 ### 1. Crear el proyecto
 
@@ -146,7 +148,7 @@ Ayuda a visualizar cómo el programa recibe comandos y cómo gestiona el estado 
 ![Flujo del taxímetro](assets/2.png)
 
 
-## Cómo desplegar y ejecutar el proyecto
+## Cómo desplegar y ejecutar mi proyecto
 
 ### Clona el repositorio
 ```
@@ -154,7 +156,7 @@ git clone git@github.com:Factoria-F5-madrid/Proyecto1-CristianYepes.git
 ```
 
 ```
-cd taximetro
+cd Proyecto1-CristianYepes.git
 ```
 
 ### Activa el entorno virtual
@@ -198,7 +200,7 @@ Esta fue la primera versión del programa, diseñada para cumplir con el **nivel
 ![Captura CLI7](assets/7.png)
 
 
-## Segunda versión (Nivel intermedio)
+## Segunda versión (Nivel medio)
 
 ### Novedades principales
 
@@ -213,6 +215,23 @@ Permite modificar las tarifas por segundo para parado y movimiento, adaptándose
 
 ✅ **Tests unitarios:**
 Se añadieron pruebas automáticas para verificar el cálculo de precios, el control de estados y las funciones principales, garantizando el correcto funcionamiento del programa a medida que crece.
+
+Cómo ejecutar los tests
+
+Primero instala `pytest` en tu entorno virtual:
+
+```
+pip install pytest
+```
+
+Guarda los archivos de prueba dentro de una carpeta **`tests/`** en la raíz del proyecto.
+
+Luego ejecuta los tests con:
+
+```
+pytest -q
+```
+
 
 ### 🖥️ Capturas funcionamiento
 
@@ -234,3 +253,61 @@ Se añadieron pruebas automáticas para verificar el cálculo de precios, el con
 ### 📄 Ejemplo del archivo taximetro.log
 
 ![NVI7](assets/nvi7.png)
+
+
+## Tercera versión (Nivel avanzado)
+
+### ✅ Refactorización orientada a objetos (OOP)
+
+Desde el inicio, este proyecto ha sido diseñado completamente en **OOP (Programación Orientada a Objetos)**, con clases bien separadas como:
+
+- `Trip`: controla el estado del viaje, tiempos y cálculo de tarifas.
+- `ConsoleView`: gestiona los mensajes mostrados al usuario y la entrada de comandos.
+- `FileTripHistory`: guarda los trayectos finalizados en un archivo de texto.
+- `Taximeter`: orquesta el funcionamiento general, comandos y flujos del programa.
+- `AuthSystem`: gestiona el registro e inicio de sesión de los usuarios.
+
+Este diseño modular permite que el código sea limpio, fácil de mantener y ampliable. Gracias a ello, se puede extender sin problemas a una API REST, a un frontend React o a integrar nuevas características como pagos, reportes o dashboards.
+
+---
+
+### ✅ Política de usuarios
+
+Se añadió un **sistema de autenticación básica** que pide al usuario **registrarse o iniciar sesión** antes de poder usar el taxímetro. Así, cada trayecto queda asociado a un usuario.
+
+- Los usuarios se almacenan en un archivo `users.txt` con el formato:
+- usuario:contraseña
+
+- ⚠️ Actualmente el sistema guarda las contraseñas en texto plano, lo que es adecuado solo para pruebas locales.
+Está diseñado para migrarse fácilmente a un sistema con contraseñas cifradas (por ejemplo SHA256 o bcrypt) en el **nivel experto**, junto con el uso de una base de datos real.
+
+---
+
+### ✅ Trayectos vinculados a usuarios
+
+Cada vez que un viaje termina, el programa guarda:
+
+- El nombre del usuario que hizo el trayecto.
+- El tiempo detenido y en marcha.
+- El total a pagar.
+
+Así se mantiene un historial detallado por usuario, listo para exportar o migrar a un sistema con consultas avanzadas.
+
+---
+
+### 📝 Resumen del nivel avanzado alcanzado
+
+✅ Código modular con OOP desde el inicio.
+✅ Sistema de usuarios con registro e inicio de sesión.
+✅ Viajes asociados a usuarios, listos para persistencia avanzada.
+✅ Preparado para migrar a cifrado de contraseñas y base de datos real.
+
+---
+
+### 🖥️ Capturas funcionamiento
+
+![NVA1](assets/nva1.png)
+
+![NVA3](assets/nva3.png)
+
+![NVA2](assets/nva2.png)

@@ -32,3 +32,45 @@
 2025-07-02 12:54:57  INFO      taximeter | ------------------------------
 2025-07-02 12:54:57  INFO      taximeter | =========== FIN SESIÓN ============
 
+2025-07-02 13:51:15  INFO      taximeter | ========== INICIO SESIÓN ==========
+2025-07-02 13:51:15  INFO      taximeter | Aplicación iniciada
+2025-07-02 13:51:18  WARNING   taximeter | Comando inválido: tes
+2025-07-02 13:51:20  INFO      taximeter | Tests unitarios: PASADOS
+2025-07-02 13:51:22  INFO      taximeter | Aplicación finalizada por usuario
+2025-07-02 13:51:22  INFO      taximeter | ------------------------------
+2025-07-02 13:51:22  INFO      taximeter | =========== FIN SESIÓN ============
+
+2025-07-03 18:04:11  INFO      taximeter | ========== INICIO SESIÓN ==========
+2025-07-03 18:04:11  INFO      taximeter | Aplicación iniciada
+2025-07-03 18:05:51  INFO      taximeter | Viaje cerrado | stop=94.47s move=0.00s total=€1.89
+2025-07-03 18:05:51  INFO      taximeter | ------------------------------
+2025-07-03 18:05:51  INFO      taximeter | Aplicación finalizada por usuario
+2025-07-03 18:05:51  INFO      taximeter | ------------------------------
+2025-07-03 18:05:51  INFO      taximeter | =========== FIN SESIÓN ============
+
+2025-07-03 19:48:27  INFO      taximeter | ========== INICIO SESIÓN ==========
+2025-07-03 19:48:27  INFO      taximeter | Aplicación iniciada
+2025-07-03 20:21:16  WARNING   taximeter | Comando inválido: sinish
+2025-07-03 20:21:18  WARNING   taximeter | finish rechazado: no hay viaje
+2025-07-03 20:21:24  INFO      taximeter | Aplicación finalizada por usuario
+2025-07-03 20:21:24  INFO      taximeter | ------------------------------
+2025-07-03 20:21:24  INFO      taximeter | =========== FIN SESIÓN ============
+
+2025-07-03 20:21:40  INFO      taximeter | ========== INICIO SESIÓN ==========
+2025-07-03 20:21:40  INFO      taximeter | Aplicación iniciada
+2025-07-03 20:21:42  INFO      taximeter | Aplicación finalizada por usuario
+2025-07-03 20:21:42  INFO      taximeter | ------------------------------
+2025-07-03 20:21:42  INFO      taximeter | =========== FIN SESIÓN ============
+
+2025-07-03 20:35:51  INFO      taximeter | ========== INICIO SESIÓN ==========
+2025-07-03 20:35:51  INFO      taximeter | Aplicación iniciada
+2025-07-03 20:35:59  INFO      taximeter | Estado cambiado a move
+2025-07-03 20:36:00  INFO      taximeter | Estado cambiado a stop
+2025-07-03 20:36:01  INFO      taximeter | Estado cambiado a move
+2025-07-03 20:36:02  INFO      taximeter | Estado cambiado a stop
+2025-07-03 20:36:04  INFO      taximeter | Viaje cerrado | stop=8.39s move=1.60s total=€0.25
+2025-07-03 20:36:04  INFO      taximeter | ------------------------------
+2025-07-03 20:36:06  INFO      taximeter | Aplicación finalizada por usuario
+2025-07-03 20:36:06  INFO      taximeter | ------------------------------
+2025-07-03 20:36:06  INFO      taximeter | =========== FIN SESIÓN ============
+

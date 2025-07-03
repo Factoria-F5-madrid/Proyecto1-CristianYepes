@@ -3,7 +3,9 @@ import logging
 import threading
 import time
 import pytest
+import os
 
+from auth import AuthSystem
 from logsetup import get_app_logger
 
 COLOR_CYAN = "\033[96m"
@@ -51,21 +53,33 @@ class Trip:
 			self.log.info("------------------------------")
 			return self.stop_time, self.move_time, self.total
 
-
 class FileTripHistory:
-	def __init__(self, logger: logging.Logger, filename="historial_viajes.txt"):
+	def __init__(self, logger: logging.Logger, username, filename="historial_viajes.txt"):
 		self.filename = filename
+		self.username = username
 		self.log = logger
+		self.next_id = self._get_next_id()
+
+	def _get_next_id(self):
+		if not os.path.exists(self.filename):
+			return 1
+		with open(self.filename, "r", encoding="utf-8") as f:
+			ids = [int(line.strip().split(":")[1])
+				   for line in f if line.startswith("ID:")]
+			return max(ids, default=0) + 1
 
 	def save(self, stop_time, move_time, total):
 		with open(self.filename, "a", encoding="utf-8") as f:
 			print("----- Viaje finalizado -----", file=f)
+			print(f"ID: {self.next_id}", file=f)
+			print(f"Usuario: {self.username}", file=f)
 			print(f"Fecha y hora: {datetime.datetime.now():%Y-%m-%d %H:%M:%S}", file=f)
 			print(f"Tiempo detenido: {stop_time:.2f} segundos", file=f)
 			print(f"Tiempo en marcha : {move_time:.2f} segundos", file=f)
 			print(f"Total a pagar   : €{total:.2f}", file=f)
 			print("------------------------------\n", file=f)
-		self.log.debug("Trayecto guardado en historial")
+		self.log.debug(f"Trayecto guardado en historial con ID {self.next_id}")
+		self.next_id += 1
 
 	def clear(self):
 		open(self.filename, "w", encoding="utf-8").close()
@@ -262,7 +276,11 @@ class Taximeter:
 
 
 if __name__ == "__main__":
+	auth = AuthSystem()
+	user = auth.login_menu()
+	print(f"\n🔐 Sesión iniciada como: {user}")
+
 	logger = get_app_logger()
 	view = ConsoleView()
-	history = FileTripHistory(logger)
+	history = FileTripHistory(logger, user)
 	Taximeter(view, history, logger).start()
