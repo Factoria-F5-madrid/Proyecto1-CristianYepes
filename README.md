@@ -316,7 +316,7 @@ Así se mantiene un historial detallado por usuario, listo para exportar o migra
 
 ## Cuarta versión (Nivel experto)
 
-- Implementación 1️⃣ 🔗 Migración completa a SQLite
+### - Implementación 1️⃣ 🔗 Migración completa a SQLite
 > Sustituimos TODOS los archivos de texto por una única base de datos **`taximetro.db`**.
 
 ### 1. ¿Por qué migrar?
@@ -369,7 +369,5 @@ LIMIT 5;
 > Esto es adecuado únicamente para entornos de prueba o desarrollo local.
 > En producción debes **nunca** guardar contraseñas sin cifrar: utiliza algoritmos como **bcrypt** o **SHA-256** con salt para proteger los datos de usuario.
 
-
-
-
+### - Implementación 2️⃣ 🔗 Api Flask
 
