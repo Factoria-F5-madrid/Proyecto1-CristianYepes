@@ -371,7 +371,7 @@ LIMIT 5;
 
 ### - Implementación 2️⃣ 🔗 Api Flask
 
-# 🚀 Nueva Arquitectura: API REST + Frontend React
+## 🚀 Nueva Arquitectura: API REST
 
 A continuación tienes un repaso de **todo lo que hemos hecho** al migrar tu taxímetro CLI a un backend desacoplado y un frontend web, y los **siguientes pasos** para terminar la parte React.
 
