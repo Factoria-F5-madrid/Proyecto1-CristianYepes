@@ -23,5 +23,4 @@ def login():
 	user = auth.login(username, password)
 	if not user:
 		return jsonify({'error':'Credenciales inválidas'}), 401
-	# opcional: emitir JWT aquí
 	return jsonify({'message':'Autenticado','user':user})

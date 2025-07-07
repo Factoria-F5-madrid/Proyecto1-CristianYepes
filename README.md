@@ -371,3 +371,174 @@ LIMIT 5;
 
 ### - Implementación 2️⃣ 🔗 Api Flask
 
+# 🚀 Nueva Arquitectura: API REST + Frontend React
+
+A continuación tienes un repaso de **todo lo que hemos hecho** al migrar tu taxímetro CLI a un backend desacoplado y un frontend web, y los **siguientes pasos** para terminar la parte React.
+
+---
+
+## 🛠️ 1. ¿Por qué separar en API + Front?
+
+- **CLI original**
+  Monolítico: lógica, persistencia y UI (texto) mezclados en `tax5.py` y `ConsoleView`. Difícil de evolucionar.
+
+- **API REST (Flask + SQLite)**
+  - Exponemos la lógica y la BD por HTTP/JSON.
+  - Cualquiera (CLI, móvil, web) puede ser cliente.
+  - Permite escalar e integrar nuevos clientes sin tocar el servidor.
+
+- **Frontend React**
+  - Interfaz gráfica en el navegador.
+  - Consume la API con `fetch`/`axios`.
+  - Independiente del backend: cambios de estilo o UX sin redeploy del servidor.
+
+---
+
+## ⚙️ 2. ¿Qué implementa ya la API?
+
+1. **`api/app.py`**
+   - Crea la app de Flask, activa CORS.
+   - Inicializa SQLite (`taximetro.db`) y lo guarda en `app.config['DB']`.
+   - Registra dos blueprints:
+     - `/api/auth` → rutas de autenticación.
+     - `/api/trips` → rutas de viajes.
+
+2. **`api/routes_auth.py`**
+   - **POST `/api/auth/register`**
+     Recibe JSON `{ username, password }`. Inserta en tabla `users`.
+   - **POST `/api/auth/login`**
+     Recibe JSON `{ username, password }`. Comprueba en `users`. Devuelve ok o error.
+
+3. **`api/routes_trips.py`**
+   - **GET  `/api/trips/`**
+     Lee header `X-User`, lista todos los viajes de ese usuario (`trips`).
+   - **POST `/api/trips/`**
+     Lee `X-User` y JSON `{ stop_time, move_time, total }`, inserta un nuevo viaje.
+
+4. **Tablas en SQLite**
+   - **`users`** `(id, username, password)`
+   - **`trips`** `(id, user_id → users.id, date, stop_time, move_time, total)`
+   - **`logs`**  `(id, timestamp, level, message)` reemplazando `taximetro.log`
+
+---
+
+¿Qué “lógica” guarda la API?
+
+Registro y login
+Inserta un registro en users cuando alguien se registra.
+Comprueba credenciales leyendo de users al hacer login.
+Inicio / fin de viaje
+Cuando el frontend envía un POST /api/trips, la API calcula (ya lo hizo React) y almacena { user_id, date, stop_time, move_time, total } en trips.
+Modo desarrollador & otros eventos
+Cada vez que tu servidor emite un logger.info() o logger.error(), un handler especial lo graba en logs (antes iba a taximetro.log).
+
+
+🔑 Resumen: La API no sólo “guarda las tablas”, sino que expone la lógica necesaria para manipular esas tablas de forma controlada y consistente desde cualquier cliente (CLI, React, móvil…).
+
+
+## API REST con Flask
+
+### Endpoints principales
+
+1. **Autenticación**
+   - **POST `/api/auth/register`**
+     JSON `{ username, password }`, registra usuario.
+   - **POST `/api/auth/login`**
+     JSON `{ username, password }`, valida credenciales.
+
+2. **Viajes**
+   - **GET `/api/trips/`**
+     Lee header `X-User`, lista todos los viajes de ese usuario (`trips`).
+   - **POST `/api/trips/`**
+     Lee `X-User` y JSON `{ stop_time, move_time, total }`, inserta un nuevo viaje.
+
+3. **Tablas en SQLite**
+   - **`users`** `(id, username, password)`
+   - **`trips`** `(id, user_id → users.id, date, stop_time, move_time, total)`
+   - **`logs`**  `(id, timestamp, level, message)` reemplazando `taximetro.log`
+
+---
+
+¿Qué "lógica" guarda la API?
+
+Registro y login
+Inserta un registro en users cuando alguien se registra.
+Comprueba credenciales leyendo de users al hacer login.
+Inicio / fin de viaje
+Cuando el frontend envía un POST /api/trips, la API calcula (ya lo hizo React) y almacena { user_id, date, stop_time, move_time, total } en trips.
+
+## 2️⃣ Instala dependencias
+
+Si aún no tienes Flask, flask-cors, etc.
+
+```
+pip install flask flask-cors
+```
+
+## 3️⃣ Arranca el servidor Flask
+
+```
+python app.py
+```
+
+Verás:
+* Running on http://127.0.0.1:5000/
+
+Tu API ahora está escuchando en localhost:5000.
+
+## 🚀 Qué hace cada archivo principal
+
+| Archivo | Descripción |
+|---------|-------------|
+| app.py | Arranca Flask, configura CORS y monta los blueprints de auth y trips |
+| routes_auth.py | Tiene /api/auth/register y /api/auth/login |
+| routes_trips.py | Tiene /api/trips/ GET y POST para listar o guardar viajes |
+| trip_repo.py | Se encarga de leer y guardar los viajes en SQLite |
+| auth.py | Controla login y registro de usuarios |
+
+##  Cómo probar la API con curl
+
+✅ 1. Registrar un usuario
+
+```
+curl -X POST http://127.0.0.1:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"test_user", "password":"1234"}'
+```
+
+✅ 2. Guardar un viaje para ese usuario
+
+```
+curl -X POST http://127.0.0.1:5000/api/trips/ \
+  -H "Content-Type: application/json" \
+  -H "X-User: test_user" \
+  -d '{"stop_time": 5, "move_time": 3, "total": 0.29}'
+```
+
+✅ 3. Listar viajes de ese usuario
+
+```
+curl -H "X-User: test_user" http://127.0.0.1:5000/api/trips/
+```
+
+Te devolverá:
+
+```
+{
+  "trips": [
+    {
+      "id": 1,
+      "date": "2025-07-07 16:09:00",
+      "stop_time": 5.0,
+      "move_time": 3.0,
+      "total": 0.29
+    }
+  ]
+}
+```
+
+⏹ Cómo detener el servidor
+Ve a la terminal donde lanzaste python app.py y presiona:
+
+📝 Tips rápidos
+✅ Puedes probar la API con Postman o Insomnia, recuerda siempre incluir el header:

@@ -8,7 +8,6 @@ def create_app():
 	app = Flask(__name__)
 	CORS(app)
 
-	# comparte la misma base de datos
 	db = Database()
 	app.config['DB'] = db
 
